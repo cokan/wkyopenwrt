@@ -2,7 +2,8 @@
 echo "\e[32m ================ 1: 更新系统 ================ \e[0m"
 cp /etc/apt/sources.list /etc/apt/sources.list.bak
 apt update
-apt upgrade -y
+#apt upgrade -y
+echo "================================================================================"
 
 echo "\e[32m ================ 2: 更换hosts ================ \e[0m"
 # github mirror updating script written by chuixue
@@ -20,6 +21,7 @@ sh -c 'echo "# github hosts start; Do not remove or change this line
 
 # insert the new hosts into /etc/hosts
 echo "$(sed '/# github hosts start; Do not remove or change this line/r github_hosts.log' /etc/hosts)" > /etc/hosts
+echo "================================================================================"
 
 echo "\e[32m ================ 3: 添加pip源 ================ \e[0m"
 
@@ -33,10 +35,11 @@ trusted-host =
 　　mirrors.aliyun.com
 　　pypi.douban.com
 EOF
-
+echo "================================================================================"
 echo "\e[32m ================ 4: 安装docker ================ \e[0m"
 # 1.安装docker
 curl -sSL https://get.daocloud.io/docker | sh
+echo "================================================================================"
 # 2.安装加速
 if [ ! -d /etc/docker ];then
    sudo mkdir -p /etc/docker
@@ -53,18 +56,24 @@ cat << EOF | sudo tee /etc/docker/daemon.json
     ]
 }
 EOF
+echo "================================================================================"
 # 3.安装docker-compose
 sudo curl -fsSL https://raw.githubusercontent.com/aleksanderlech/armv7-docker-compose/master/run.sh -o /usr/local/bin/docker-compose
 sudo chmod +x /usr/local/bin/docker-compose
 docker-compose --version
+echo "================================================================================"
 
-echo "\e[32m ================ 5: 安装镜像 ================ \e[0m"
-docker pull dickhub/openwrt:armv7
+echo "\e[32m ================ 5: 更换MAC ================ \e[0m"
+read -p "Enter Your mac: "  wkymac
+echo "Your mac: $wkymac"
+
+sed -i '7c hwaddress $wkymac' /etc/network/interfaces
+echo "================================================================================"
+
+echo "\e[32m ================ 6: 安装镜像 ================ \e[0m"
+docker pull virking/openwrt:20.04
 ip link set eth0 promisc on
 docker network create -d macvlan --subnet=192.168.0.0/24 --gateway=192.168.0.1 -o parent=eth0 macnet
-docker run -i -t -d --name=openwrt --restart=always --network=macnet --privileged=true dickhub/openwrt:armv7 /sbin/init
-docker exec -it openwrt bash
-
-echo "\e[32m ================ 6: 执行更新，修复依赖 ================ \e[0m"
-sudo apt-get update
-sudo apt-get -f install -y
+docker run -i -t -d --name=openwrt --restart=always --network=macnet --privileged=true virking/openwrt:20.04 /sbin/init
+#docker exec -it openwrt bash
+echo "================================================================================"
