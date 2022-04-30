@@ -71,9 +71,3 @@ docker run -i -t -d --name=openwrt --restart=always --network=macnet --privilege
 #docker exec -it openwrt bash
 echo "================================================================================"
 
-echo "\e[32m ================ 5: 更换MAC ================ \e[0m"
-read -p "Enter Your mac: "  wkymac
-echo "Your mac: $wkymac"
-
-sed -i '7c hwaddress $wkymac' /etc/network/interfaces
-echo "================================================================================"
