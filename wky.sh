@@ -63,17 +63,17 @@ sudo chmod +x /usr/local/bin/docker-compose
 docker-compose --version
 echo "================================================================================"
 
-echo "\e[32m ================ 5: 更换MAC ================ \e[0m"
-read -p "Enter Your mac: "  wkymac
-echo "Your mac: $wkymac"
-
-sed -i '7c hwaddress $wkymac' /etc/network/interfaces
-echo "================================================================================"
-
 echo "\e[32m ================ 6: 安装镜像 ================ \e[0m"
 docker pull virking/openwrt:20.04
 ip link set eth0 promisc on
 docker network create -d macvlan --subnet=192.168.0.0/24 --gateway=192.168.0.1 -o parent=eth0 macnet
 docker run -i -t -d --name=openwrt --restart=always --network=macnet --privileged=true virking/openwrt:20.04 /sbin/init
 #docker exec -it openwrt bash
+echo "================================================================================"
+
+echo "\e[32m ================ 5: 更换MAC ================ \e[0m"
+read -p "Enter Your mac: "  wkymac
+echo "Your mac: $wkymac"
+
+sed -i '7c hwaddress $wkymac' /etc/network/interfaces
 echo "================================================================================"
