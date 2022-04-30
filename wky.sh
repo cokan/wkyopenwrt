@@ -58,12 +58,13 @@ sudo curl -fsSL https://raw.githubusercontent.com/aleksanderlech/armv7-docker-co
 sudo chmod +x /usr/local/bin/docker-compose
 docker-compose --version
 
-echo "\e[32m ================ 5: 更换MAC ================ \e[0m"
-sed -i '7c hwaddress 00:22:6D:59:E4:CB' /etc/network/interfaces
-
-echo "\e[32m ================ 6: 安装镜像 ================ \e[0m"
+echo "\e[32m ================ 5: 安装镜像 ================ \e[0m"
 docker pull dickhub/openwrt:armv7
 ip link set eth0 promisc on
 docker network create -d macvlan --subnet=192.168.0.0/24 --gateway=192.168.0.1 -o parent=eth0 macnet
 docker run -i -t -d --name=openwrt --restart=always --network=macnet --privileged=true dickhub/openwrt:armv7 /sbin/init
 docker exec -it openwrt bash
+
+echo "\e[32m ================ 6: 执行更新，修复依赖 ================ \e[0m"
+sudo apt-get update
+sudo apt-get -f install -y
